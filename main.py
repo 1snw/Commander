@@ -1,5 +1,6 @@
 import os
 import discord
+import asyncio
 from dotenv import load_dotenv
 from discord.ext import commands
 
@@ -20,6 +21,11 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("You dont have all the requirements :angry:")
 
+@client.event
+async def on_command_error(ctx, error):
+	if isinstance(error, commands.MissingAnyRole):
+		await ctx.send('You dont have the CommanderAdmin the CommanderMod role to use this command.')
+
 @client.command()
 @commands.has_any_role("CommanderAdmin","CommanderMod")
 async def ban (ctx, member:discord.User=None, reason =None):
@@ -36,7 +42,7 @@ async def ban (ctx, member:discord.User=None, reason =None):
 
 #The below code unbans player.
 @client.command()
-@commands.has_permissions(administrator = True)
+@commands.has_any_role("CommanderAdmin","CommanderMod")
 async def unban(ctx, *, member):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split("#")
@@ -48,9 +54,9 @@ async def unban(ctx, *, member):
             await ctx.guild.unban(user)
             await ctx.send(f'Unbanned {user.mention}')
             return
-            
+
 @client.command()
-@commands.has_permissions(kick_members=True)
+@commands.has_any_role("CommanderAdmin","CommanderMod")
 async def kick(ctx, user: discord.Member, *, reason = None):
   if not reason:
     await user.kick()
@@ -58,6 +64,5 @@ async def kick(ctx, user: discord.Member, *, reason = None):
   else:
     await user.kick(reason=reason)
     await ctx.send(f"**{user}** has been kicked for **{reason}**.")
-
 
 client.run(TOKEN)
