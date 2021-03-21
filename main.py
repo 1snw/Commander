@@ -48,6 +48,16 @@ async def unban(ctx, *, member):
             await ctx.guild.unban(user)
             await ctx.send(f'Unbanned {user.mention}')
             return
+            
+@client.command()
+@commands.has_permissions(kick_members=True)
+async def kick(ctx, user: discord.Member, *, reason = None):
+  if not reason:
+    await user.kick()
+    await ctx.send(f"**{user}** has been kicked for **no reason**.")
+  else:
+    await user.kick(reason=reason)
+    await ctx.send(f"**{user}** has been kicked for **{reason}**.")
 
 
 client.run(TOKEN)
